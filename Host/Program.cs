@@ -1,3 +1,4 @@
+using static Microsoft.AspNetCore.Http.StatusCodes;
 internal class Program
 {
     private static void Main(string[] args)
@@ -7,6 +8,15 @@ internal class Program
         // Add services to the container.
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        if (!builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddHttpsRedirection(options =>
+            {
+                options.RedirectStatusCode = Status308PermanentRedirect;
+                options.HttpsPort = 443;
+            });
+        }
 
         var app = builder.Build();
 
@@ -19,12 +29,18 @@ internal class Program
                 options.RoutePrefix = string.Empty;
             });
         }
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
         // Configure the HTTP request pipeline.
 
         var summaries = new[]
         {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+        };
 
         app.MapGet("/weatherforecast", () =>
         {
