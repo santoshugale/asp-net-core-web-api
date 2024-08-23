@@ -1,4 +1,6 @@
 using static Microsoft.AspNetCore.Http.StatusCodes;
+using Domain.Services;
+using Data;
 internal class Program
 {
     private static void Main(string[] args)
@@ -8,7 +10,11 @@ internal class Program
         // Add services to the container.
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        builder.Services.AddControllers();
+        builder.Services.RegisterDbContext();
+        builder.Services.AddScoped<IMoviesService, MoviesService>();
+        // Add cors policy
+        // Add xml and json support
         if (!builder.Environment.IsDevelopment())
         {
             builder.Services.AddHttpsRedirection(options =>
@@ -29,13 +35,9 @@ internal class Program
                 options.RoutePrefix = string.Empty;
             });
         }
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseHsts();
-        }
 
-        app.UseHttpsRedirection();
         // Configure the HTTP request pipeline.
+        app.MapControllers();
 
         var summaries = new[]
         {
